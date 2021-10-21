@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript" src="recorder.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+    <title>Título da página</title>
+  </head>
+  <body>
+    <audio controls autoplay></audio>
+    <script type="text/javascript" src="recorder.js"> </script>
+            <fieldset><legend>GRAVAR ÁUDIO</legend>
+    <input onclick="startRecording()" type="button" value="Iniciar Gravação" />
+    <input onclick="stopRecording()" type="button" value="Parar Gravação" />
+            </fieldset>
+    <script>
+        var onFail = function(e) {
+            console.log('Rejected!', e);
+        };
+
+        var onSuccess = function(s) {
+            var context = new webkitAudioContext();
+            var mediaStreamSource = context.createMediaStreamSource(s);
+            recorder = new Recorder(mediaStreamSource);
+            recorder.record();
+
+            // audio loopback
+            // mediaStreamSource.connect(context.destination);
+        }
+
+        window.URL = window.URL || window.webkitURL;
+        navigator.getUserMedia  = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
+        var recorder;
+        var audio = document.querySelector('audio');
+
+        function startRecording() {
+            if (navigator.getUserMedia) {
+                navigator.getUserMedia({audio: true}, onSuccess, onFail);
+            } else {
+                console.log('navigator.getUserMedia not present');
+            }
+        }
+
+        function stopRecording() {
+            recorder.stop();
+            recorder.exportWAV(function(s) {
+                        
+                             audio.src = window.URL.createObjectURL(s);
+            });
+        }
+    </script>
+</body>
+</html>
